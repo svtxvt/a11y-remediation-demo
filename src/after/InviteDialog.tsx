@@ -1,4 +1,5 @@
-import { useRef, useState, type FormEvent } from 'react';
+import { useId, useRef, useState, type FormEvent } from 'react';
+import { flushSync } from 'react-dom';
 import { Modal } from './Modal';
 import { Toggle } from './Toggle';
 import styles from './invite.module.css';
@@ -38,12 +39,27 @@ export function InviteDialog({ onClose }: InviteDialogProps) {
   const [errors, setErrors] = useState<Errors>({});
   const [message, setMessage] = useState('');
   const emailRef = useRef<HTMLInputElement>(null);
+  const firstRoleRef = useRef<HTMLInputElement>(null);
+
+  const id = useId();
+  const emailId = `${id}-email`;
+  const emailErrorId = `${id}-email-error`;
+  const roleErrorId = `${id}-role-error`;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const nextErrors = validate(email, role);
-    setErrors(nextErrors);
-    if (nextErrors.email || nextErrors.role) return;
+    // Render aria-invalid and the messages before moving focus, so the
+    // field is announced together with its error.
+    flushSync(() => setErrors(nextErrors));
+    if (nextErrors.email) {
+      emailRef.current?.focus();
+      return;
+    }
+    if (nextErrors.role) {
+      firstRoleRef.current?.focus();
+      return;
+    }
 
     const roleLabel = ROLES.find((r) => r.value === role)?.label;
     setMessage(
@@ -58,39 +74,64 @@ export function InviteDialog({ onClose }: InviteDialogProps) {
     <Modal title="Invite a teammate" onClose={onClose} initialFocusRef={emailRef}>
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <div className={styles.field}>
+          <label htmlFor={emailId} className={styles.label}>
+            Email address
+          </label>
           <input
             ref={emailRef}
-            type="text"
+            id={emailId}
+            type="email"
+            required
             className={errors.email ? `${styles.input} ${styles.inputError}` : styles.input}
-            placeholder="Email address"
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? emailErrorId : undefined}
             value={email}
             onChange={(event) => {
               setEmail(event.target.value);
               setMessage('');
             }}
           />
-          {errors.email && <div className={styles.error}>{errors.email}</div>}
+          {errors.email && (
+            <p id={emailErrorId} className={styles.error}>
+              {errors.email}
+            </p>
+          )}
         </div>
 
-        <div className={styles.field}>
-          <div className={styles.label}>Role</div>
-          {ROLES.map((r) => (
-            <div className={styles.radioRow} key={r.value}>
-              <input
-                type="radio"
-                name="role"
-                value={r.value}
-                checked={role === r.value}
-                onChange={() => setRole(r.value)}
-              />
-              <span className={styles.radioText}>
-                <span>{r.label}</span>
-                <span className={styles.hint}>{r.hint}</span>
-              </span>
-            </div>
-          ))}
-          {errors.role && <div className={styles.error}>{errors.role}</div>}
-        </div>
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.label}>Role</legend>
+          {ROLES.map((r, index) => {
+            const radioId = `${id}-role-${r.value}`;
+            const hintId = `${radioId}-hint`;
+            return (
+              <div className={styles.radioRow} key={r.value}>
+                <input
+                  ref={index === 0 ? firstRoleRef : undefined}
+                  id={radioId}
+                  type="radio"
+                  name="role"
+                  value={r.value}
+                  required
+                  checked={role === r.value}
+                  onChange={() => setRole(r.value)}
+                  aria-invalid={errors.role ? true : undefined}
+                  aria-describedby={errors.role ? `${roleErrorId} ${hintId}` : hintId}
+                />
+                <span className={styles.radioText}>
+                  <label htmlFor={radioId}>{r.label}</label>
+                  <span id={hintId} className={styles.hint}>
+                    {r.hint}
+                  </span>
+                </span>
+              </div>
+            );
+          })}
+          {errors.role && (
+            <p id={roleErrorId} className={styles.error}>
+              {errors.role}
+            </p>
+          )}
+        </fieldset>
 
         <Toggle checked={sendWelcome} onChange={setSendWelcome} label="Send welcome email" />
 
