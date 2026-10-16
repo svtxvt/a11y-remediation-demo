@@ -250,9 +250,14 @@
 }
 
 .success {
+  margin: 0;
   padding: 10px 12px;
   border-radius: 8px;
   background: #ecfdf3;
   color: #067647;
   font-weight: 600;
+}
+
+.success:empty {
+  padding: 0;
 }

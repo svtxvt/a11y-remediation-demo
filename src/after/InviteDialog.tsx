@@ -139,7 +139,11 @@ export function InviteDialog({ onClose }: InviteDialogProps) {
           Send invite
         </button>
 
-        {message && <div className={styles.success}>{message}</div>}
+        {/* The live region is always in the DOM, so screen readers are already
+            watching it when the message text is added. */}
+        <p role="status" className={styles.success}>
+          {message}
+        </p>
       </form>
     </Modal>
   );
