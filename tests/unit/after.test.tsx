@@ -80,12 +80,22 @@ describe('AFTER: labels and errors', () => {
     await openDialog();
 
     expect(getEmail()).toBeRequired();
-    const roleGroup = screen.getByRole('group', { name: 'Role' });
+    const roleGroup = screen.getByRole('radiogroup', { name: 'Role' });
+    expect(roleGroup).toHaveAttribute('aria-required', 'true');
     const radios = within(roleGroup).getAllByRole('radio');
     expect(radios.map((radio) => radio.getAttribute('value'))).toEqual(['member', 'admin', 'viewer']);
     expect(within(roleGroup).getByRole('radio', { name: 'Admin' })).toHaveAccessibleDescription(
       'Can also manage members and billing',
     );
+  });
+
+  it('does not report any field as invalid before the first submit', async () => {
+    await openDialog();
+
+    expect(getEmail()).not.toHaveAttribute('aria-invalid');
+    for (const radio of screen.getAllByRole('radio')) {
+      expect(radio).not.toBeInvalid();
+    }
   });
 
   it('invalid submit sets aria-invalid, links the error and focuses the first invalid field', async () => {

@@ -98,7 +98,10 @@ export function InviteDialog({ onClose }: InviteDialogProps) {
           )}
         </div>
 
-        <fieldset className={styles.fieldset}>
+        {/* No native `required` on the radios: Chromium then reports an empty
+            group as invalid as soon as the dialog opens, before any submit.
+            The group carries aria-required instead. */}
+        <fieldset className={styles.fieldset} role="radiogroup" aria-required="true">
           <legend className={styles.label}>Role</legend>
           {ROLES.map((r, index) => {
             const radioId = `${id}-role-${r.value}`;
@@ -111,7 +114,6 @@ export function InviteDialog({ onClose }: InviteDialogProps) {
                   type="radio"
                   name="role"
                   value={r.value}
-                  required
                   checked={role === r.value}
                   onChange={() => setRole(r.value)}
                   aria-invalid={errors.role ? true : undefined}
