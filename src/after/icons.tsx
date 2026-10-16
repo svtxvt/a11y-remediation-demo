@@ -1,6 +1,8 @@
 export function PersonPlusIcon() {
   return (
     <svg
+      aria-hidden="true"
+      focusable="false"
       width="20"
       height="20"
       viewBox="0 0 24 24"
@@ -20,6 +22,8 @@ export function PersonPlusIcon() {
 export function CloseIcon() {
   return (
     <svg
+      aria-hidden="true"
+      focusable="false"
       width="20"
       height="20"
       viewBox="0 0 24 24"

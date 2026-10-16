@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { Modal } from './Modal';
 import { Toggle } from './Toggle';
 import styles from './invite.module.css';
@@ -37,6 +37,7 @@ export function InviteDialog({ onClose }: InviteDialogProps) {
   const [sendWelcome, setSendWelcome] = useState(true);
   const [errors, setErrors] = useState<Errors>({});
   const [message, setMessage] = useState('');
+  const emailRef = useRef<HTMLInputElement>(null);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -54,10 +55,11 @@ export function InviteDialog({ onClose }: InviteDialogProps) {
   }
 
   return (
-    <Modal title="Invite a teammate" onClose={onClose}>
+    <Modal title="Invite a teammate" onClose={onClose} initialFocusRef={emailRef}>
       <form className={styles.form} onSubmit={handleSubmit} noValidate>
         <div className={styles.field}>
           <input
+            ref={emailRef}
             type="text"
             className={errors.email ? `${styles.input} ${styles.inputError}` : styles.input}
             placeholder="Email address"

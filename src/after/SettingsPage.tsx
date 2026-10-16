@@ -24,7 +24,12 @@ export function SettingsPage() {
       <section className={styles.card}>
         <div className={styles.cardHeader}>
           <h2 className={styles.cardTitle}>Members</h2>
-          <button type="button" className={styles.iconButton} onClick={() => setInviteOpen(true)}>
+          <button
+            type="button"
+            className={styles.iconButton}
+            aria-label="Invite a teammate"
+            onClick={() => setInviteOpen(true)}
+          >
             <PersonPlusIcon />
           </button>
         </div>
