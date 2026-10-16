@@ -7,15 +7,24 @@ type ToggleProps = {
 };
 
 export function Toggle({ checked, onChange, label }: ToggleProps) {
+  // A native <button> is focusable and fires click on Enter and Space.
+  // role="switch" with aria-checked exposes it as an on/off control,
+  // and the visible text inside is its accessible name.
   return (
-    <div className={styles.switchRow}>
-      <div
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      className={`${styles.switchRow} ${styles.switchButton}`}
+      onClick={() => onChange(!checked)}
+    >
+      <span
         className={checked ? `${styles.switch} ${styles.switchOn}` : styles.switch}
-        onClick={() => onChange(!checked)}
+        aria-hidden="true"
       >
-        <div className={styles.knob} />
-      </div>
+        <span className={styles.knob} />
+      </span>
       <span className={styles.switchLabel}>{label}</span>
-    </div>
+    </button>
   );
 }
